@@ -4,10 +4,9 @@ Part 1 - Read in and process the data
 -------------------------------------
 
 
-```r
+```s
 # read in the data and produce a quick summary
-activityData <- read.csv("activity.csv", colClasses = c("numeric", "Date", "numeric"), 
-    header = T)
+activityData <- read.csv("activity.csv", colClasses = c("numeric", "Date", "numeric"), header = T)
 summary(activityData)
 ```
 
@@ -28,7 +27,7 @@ Part 2 - What is the mean total number of steps taken each day?
 The total number of steps taken per are calculated, and a plot of these totals produced.
 
 
-```r
+```s
 # produce an array containing daily sums, and make a histogram
 daySum <- tapply(activityData$steps, activityData$date, sum)
 hist(daySum, main = "Daily Steps", xlab = "Total number of Daily Steps", col = "blue")
@@ -40,7 +39,7 @@ hist(daySum, main = "Daily Steps", xlab = "Total number of Daily Steps", col = "
 The mean and median are determined, ignoring missing values.
 
 
-```r
+```s
 # calculate the mean
 mean(daySum, na.rm = T)
 ```
@@ -49,7 +48,7 @@ mean(daySum, na.rm = T)
 ## [1] 10766
 ```
 
-```r
+```s
 # calculate the median
 median(daySum, na.rm = T)
 ```
@@ -64,13 +63,13 @@ Part 3 - What is the average daily activity pattern?
 This can be answered by first looking at a time series plot of the average number of steps taken in each 5-minute time interval, again ignoring missing values.
 
 
-```r
+```s
 # construct a data frame of the average steps for each interval
 library(plyr)
 intMean <- ddply(activityData, .(interval), summarise, mean = mean(steps, na.rm = T))
 # plot the steps vs. interval
 plot(intMean$interval, intMean$mean, type = "l", main = "Average Steps per Interval", 
-    xlab = "Interval (min since 00:00)", ylab = "Average Number of Steps")
+     xlab = "Interval (min since 00:00)", ylab = "Average Number of Steps")
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
@@ -79,7 +78,7 @@ plot(intMean$interval, intMean$mean, type = "l", main = "Average Steps per Inter
 The 5-minute interval in which the maximum number of steps were taken:
 
 
-```r
+```s
 # determine the interval with the maximum average number of steps
 intMean[(intMean$mean == max(intMean$mean)), ]
 ```
@@ -96,7 +95,7 @@ Several of the intervals,usually by entire days, are missing values for the numb
 The total number of missing values for each variable:
 
 
-```r
+```s
 # sum the NA's in each column variable
 colSums(is.na(activityData))
 ```
@@ -110,20 +109,19 @@ colSums(is.na(activityData))
 A simple method with which to replace the missing values is to use the mean value for that time interval. Once a new data frame is made with the values are replaced,
 
 
-```r
+```s
 # create a new data frame with the missing values replaced
 aData2 <- activityData
-aData2$steps <- replace(activityData$steps, is.na(activityData$steps), round(intMean$mean, 
-    1))
+aData2$steps <- replace(activityData$steps, is.na(activityData$steps), round(intMean$mean, 1))
 ```
 
 
 The previous look at the total daily steps can be reapplied.
 
 
-```r
+```s
 hist(tapply(aData2$steps, aData2$date, sum), main = "Daily Steps with Missing Values Replaced", 
-    xlab = "Total number of Daily Steps", col = "red")
+     xlab = "Total number of Daily Steps", col = "red")
 ```
 
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
@@ -132,7 +130,7 @@ hist(tapply(aData2$steps, aData2$date, sum), main = "Daily Steps with Missing Va
 And the mean and median values recalculated:
 
 
-```r
+```s
 # calculate the mean
 mean(tapply(aData2$steps, aData2$date, sum))
 ```
@@ -141,7 +139,7 @@ mean(tapply(aData2$steps, aData2$date, sum))
 ## [1] 10766
 ```
 
-```r
+```s
 # calculate the median
 median(tapply(aData2$steps, aData2$date, sum))
 ```
@@ -158,17 +156,17 @@ Part 5 - Are there differences in activity patterns between weekdays and weekend
 This is examined through creation of a set of two factor variables, weekday and weekend, and assigning the data to each one, based on the type of day. A simple panel plot demonstrates clear differences between the patterns of the average number of steps in each interval, averaged across the weekedays, compared to the weekend.
 
 
-```r
+```s
 # create factors based on day of the week, and assign days
 aData2$dayType <- ifelse(weekdays(aData2$date) == "Sunday" | weekdays(aData2$date) == 
-    "Saturday", "weekend", "weekday")
+                         "Saturday", "weekend", "weekday")
 aData2$dayType <- factor(aData2$dayType)
 dayTypeMean <- ddply(aData2, .(interval, dayType), summarise, mean = mean(steps))
 
 # plot steps based on the day factor
 library(lattice)
 xyplot(dayTypeMean$mean ~ dayTypeMean$interval | dayTypeMean$dayType, type = "l", 
-    xlab = "Interval (min since 00:00)", ylab = "Average Number of Steps")
+       xlab = "Interval (min since 00:00)", ylab = "Average Number of Steps")
 ```
 
 ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
